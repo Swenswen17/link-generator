@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Link Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #ffe6f2;
+        text-align: center;
+        padding: 30px;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        width: 350px;
+        margin: auto;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #ddd;
+    }
+    button {
+        width: 100%;
+        padding: 13px;
+        margin-top: 10px;
+        border: none;
+        background: #ff4fa3;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+
+<body>
+<div class="card">
+    <h2>60% OFF Link Generator</h2>
+
+    <label>Select Base URL</label>
+    <select id="baseUrl">
+        <option value="https://example.com/item/">https://example.com/item/</option>
+    </select>
+
+    <label>Enter Range (e.g. 100–200)</label>
+    <input type="text" id="rangeInput" placeholder="100-200">
+
+    <button onclick="generateLinks()">Generate Links</button>
+    <button onclick="copyLinks()">Copy Links</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+
+    <textarea id="output" rows="8"></textarea>
+</div>
+
+<script>
+function generateLinks() {
+    const base = document.getElementById('baseUrl').value;
+    const range = document.getElementById('rangeInput').value;
+    const out = document.getElementById('output');
+
+    const [start, end] = range.split('-').map(Number);
+
+    let links = [];
+    for (let i = start; i <= end; i++) {
+        links.push(base + i);
+    }
+    out.value = links.join("\n");
+}
+
+function copyLinks() {
+    const out = document.getElementById("output");
+    out.select();
+    document.execCommand("copy");
+    alert("Copied!");
+}
+
+function downloadCSV() {
+    const out = document.getElementById("output").value;
+    const blob = new Blob([out.replace(/\n/g, ",")], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "links.csv";
+    link.click();
+}
+</script>
+
+</body>
+</html>
