@@ -2,75 +2,156 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Shein Link Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bea B. 60% OFF Link Generator</title>
+
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #ffe6f2;
-    text-align: center;
-    padding: 30px;
-}
-.card {
-    background: white;
-    padding: 20px;
-    width: 400px;
-    margin: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ddd;
-}
-textarea, button {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-}
-button {
-    border: none;
-    background: #ff4fa3;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background: #ffe6f2;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 420px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: #ff1493;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    label {
+        text-align: left;
+        width: 100%;
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+        color: #444;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 14px;
+        margin-top: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        background: #ff1493;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #e01382;
+    }
+
+    #output {
+        margin-top: 15px;
+        resize: none;
+        height: 150px;
+    }
 </style>
 </head>
+
 <body>
-<div class="card">
-<h2>Shein Link Generator</h2>
-<label>Paste Shein product IDs (one per line):</label>
-<textarea id="productIds" rows="6" placeholder="e.g. 59yj2bceliq4"></textarea>
-<button onclick="generateLinks()">Generate Links</button>
-<button onclick="copyLinks()">Copy Links</button>
-<button onclick="downloadCSV()">Download CSV</button>
-<label>Generated links:</label>
-<textarea id="output" rows="8"></textarea>
+<div class="container">
+    <h2>Bea B. 60% OFF Link Generator</h2>
+
+    <label>Select Base URL</label>
+    <select id="baseUrl">
+        <option value="https://m.shein.com/ph/ark/">https://m.shein.com/ph/ark/</option>
+        <option value="https://m.shein.com/ph/arko/">https://m.shein.com/ph/arko/</option>
+        <option value="https://m.shein.com/ph/arkx/">https://m.shein.com/ph/arkx/</option>
+    </select>
+
+    <label>Enter range</label>
+    <input type="text" id="rangeInput" placeholder="e.g. 100000 - 120000">
+
+    <label>Separator</label>
+    <select id="separator">
+        <option value="\n">New line</option>
+        <option value=", ">Comma</option>
+        <option value=" ">Space</option>
+    </select>
+
+    <button onclick="generateLinks()">Generate Links</button>
+    <button onclick="copyLinks()">Copy Links</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+
+    <textarea id="output" placeholder="Generated links will appear here..."></textarea>
 </div>
 
 <script>
 function generateLinks() {
-    const ids = document.getElementById("productIds").value
-        .split("\n")
-        .map(id => id.trim())
-        .filter(id => id !== "");
-    const base = "https://www.shein.com/ph/ark/";
-    const links = ids.map(id => base + id);
-    document.getElementById("output").value = links.join("\n");
+    let base = document.getElementById("baseUrl").value;
+    let range = document.getElementById("rangeInput").value;
+    let separator = document.getElementById("separator").value;
+
+    if (!range.includes("-")) {
+        alert("Enter a valid range (e.g. 100000 - 120000)");
+        return;
+    }
+
+    let [start, end] = range.split("-").map(n => parseInt(n.trim()));
+    if (isNaN(start) || isNaN(end)) {
+        alert("Invalid range numbers.");
+        return;
+    }
+
+    let output = [];
+    for (let i = start; i <= end; i++) {
+        output.push(base + i);
+    }
+
+    document.getElementById("output").value = output.join(separator);
 }
 
 function copyLinks() {
-    const out = document.getElementById("output");
-    out.select();
-    document.execCommand("copy");
-    alert("Copied!");
+    let text = document.getElementById("output");
+    text.select();
+    text.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(text.value)
+        .then(() => alert("Links copied!"));
 }
 
 function downloadCSV() {
-    const out = document.getElementById("output").value;
-    const blob = new Blob([out.replace(/\n/g, ",")], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "shein-links.csv";
+    let text = document.getElementById("output").value;
+
+    if (!text.trim()) {
+        alert("Generate links first.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8," + text.replace(/\n/g, "\r\n");
+
+    let link = document.createElement("a");
+    link.href = encodeURI(csvContent);
+    link.download = "shein_links.csv";
     link.click();
 }
 </script>
+
 </body>
 </html>
