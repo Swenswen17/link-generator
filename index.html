@@ -13,14 +13,7 @@ body {
   overflow-x:hidden;
   animation: gradientBG 10s ease infinite;
 }
-
-/* Background gradient animation */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
+@keyframes gradientBG {0% { background-position: 0% 50%; }50% { background-position: 100% 50%; }100% { background-position: 0% 50%; }}
 .card { 
   background: rgba(255,255,255,0.95); 
   padding:20px; 
@@ -32,10 +25,7 @@ body {
   transform: translateY(20px);
   animation: fadeIn 1s forwards;
 }
-@keyframes fadeIn{
-  to { opacity:1; transform:translateY(0);}
-}
-
+@keyframes fadeIn{ to { opacity:1; transform:translateY(0); } }
 input, textarea, select, button { 
   width: 90%; 
   padding:10px; 
@@ -52,7 +42,6 @@ button {
   transition: transform 0.2s;
 }
 button:hover { transform: scale(1.05); }
-
 .confession, .reply { 
   background:#ffe0f0; 
   margin:10px 0; 
@@ -68,8 +57,6 @@ button:hover { transform: scale(1.05); }
 }
 a { color:#ff4fa3; text-decoration:none; }
 a:hover { text-decoration:underline; }
-
-/* Music control button */
 #musicBtn { 
   position: fixed; 
   top: 10px; 
@@ -87,34 +74,29 @@ a:hover { text-decoration:underline; }
 </head>
 <body>
 
-<!-- Background Music -->
 <audio id="bgMusic" loop autoplay>
   <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
 </audio>
 <button id="musicBtn" onclick="toggleMusic()">🎵</button>
 
-<!-- Welcome Card -->
 <div class="card" id="welcomeCard">
   <h2>Hi there! 👋</h2>
   <p>
-    Are you shy or “torpe”? This website is made just for you! 💖<br><br>
-    Confess your feelings to your loved one <strong>anonymously</strong> by sending them a special link using your spare Facebook account. You can even add a YouTube song that reminds you of them—but it’s optional.<br><br>
-    <strong>Always remember:</strong> confessing face-to-face is much better. This website is just a little help if you’re too shy to do it in person. 💌
+    Are you shy or “torpe”? Confess anonymously! 💖
   </p>
   <button onclick="startConfession()">Continue</button>
 </div>
 
-<!-- Confession Card -->
 <div class="card" id="confessCard" style="display:none;">
 <h2>Write Your Confession 💖</h2>
 <input type="text" id="boyName" placeholder="Your Name">
 <textarea id="confessMessage" rows="4" placeholder="Write your confession..."></textarea>
-<input type="text" id="youtubeLink" placeholder="YouTube link for a song (optional)">
+<input type="text" id="youtubeLink" placeholder="YouTube link (optional)">
 <select id="confessType">
   <option value="crush">I like you 💘</option>
   <option value="court">Can I court you? 🌸</option>
 </select>
-<p>Add Emoji / Sticker:</p>
+<p>Add Emoji:</p>
 <span class="emoji" onclick="addEmoji('❤️')">❤️</span>
 <span class="emoji" onclick="addEmoji('😃')">😃</span>
 <span class="emoji" onclick="addEmoji('😢')">😢</span>
@@ -126,7 +108,6 @@ a:hover { text-decoration:underline; }
 <button id="copyBtn" style="display:none;" onclick="copyLink()">Copy Link</button>
 </div>
 
-<!-- View Confession Card -->
 <div class="card" id="viewCard" style="display:none;">
 <h2>Confession 💌</h2>
 <p><strong id="confessToName"></strong> (<span id="confessTypeDisplay"></span>)</p>
@@ -168,12 +149,12 @@ function generateLink(){
   const youtube = document.getElementById('youtubeLink').value.trim();
   const type = document.getElementById('confessType').value;
   if(!name || !message){ alert('Fill name and message'); return; }
-  
+
   confessionData = {name,message,youtube,type,reply:[]};
   localStorage.setItem('confession', JSON.stringify(confessionData));
   const encoded = encodeURIComponent(JSON.stringify(confessionData));
   const shareLink = window.location.origin + window.location.pathname + '?data=' + encoded;
-  
+
   document.getElementById('linkMsg').innerHTML = `Copy this link and send to your crush: <br><a href="${shareLink}" target="_blank">${shareLink}</a>`;
   document.getElementById('copyBtn').style.display='inline-block';
   document.getElementById('copyBtn').setAttribute('data-link', shareLink);
@@ -189,6 +170,16 @@ function loadConfession(){
   const dataParam = urlParams.get('data');
   if(dataParam){
     confessionData = JSON.parse(decodeURIComponent(dataParam));
+
+    // Merge with any existing replies in localStorage
+    let savedConf = localStorage.getItem('confession');
+    if(savedConf){
+      savedConf = JSON.parse(savedConf);
+      if(savedConf.reply && savedConf.reply.length > 0){
+        confessionData.reply = savedConf.reply;
+      }
+    }
+
     document.getElementById('confessCard').style.display='none';
     document.getElementById('welcomeCard').style.display='none';
     document.getElementById('viewCard').style.display='block';
@@ -205,8 +196,10 @@ function submitReply(){
   const rName = document.getElementById('replyName').value.trim();
   const rMsg = document.getElementById('replyMessage').value.trim();
   if(!rName || !rMsg){ alert('Fill your name and reply'); return; }
+
   confessionData.reply.push({name:rName,message:rMsg});
   localStorage.setItem('confession', JSON.stringify(confessionData));
+
   document.getElementById('replyName').value=''; 
   document.getElementById('replyMessage').value='';
   document.getElementById('replyMsg').innerText='Reply submitted!';
